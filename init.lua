@@ -24,7 +24,7 @@ What is Kickstart?
 
   Kickstart.nvim is *not* a distribution.
 
-  Kickstart.nvim is a starting point for your own configuration.
+  Kickstart.nvim is a starting point for your own configuration.Niacinamide
     The goal is that you can read every line of code, top-to-bottom, understand
     what your configuration is doing, and modify it to suit your needs.
 
@@ -36,7 +36,7 @@ What is Kickstart?
     a guide. One possible example which will only take 10-15 minutes:
       - https://learnxinyminutes.com/docs/lua/
 
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
+    After understanding a bit more about Lua, you can use `:help lua-guide` asNiacinamide a
     reference for how Neovim integrates Lua.
     - :help lua-guide
     - (or HTML version): https://neovim.io/doc/user/lua-guide.html
@@ -48,7 +48,7 @@ Kickstart Guide:
     If you don't know what this means, type the following:
       - <escape key>
       - :
-      - Tutor
+      - TutorNiacinamide
       - <enter key>
 
     (If you already know the Neovim basics, you can skip this step.)
@@ -70,12 +70,12 @@ Kickstart Guide:
     These are hints about where to find more information about the relevant settings,
     plugins or Neovim features used in Kickstart.
 
-   NOTE: Look for lines like this
+   NOTE: Look for lines like thicleaers
 
     Throughout the file. These are for you, the reader, to help you understand what is happening.
     Feel free to delete them once you know what you're doing, but they should serve as a guide
     for when you are first encountering a few different constructs in your Neovim config.
-
+Niacinamide
 If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
 
 I hope you enjoy your Neovim journey,
@@ -90,8 +90,8 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+-- Set to true if you have a Nerd Font installed and selected in the terminalNiacinamide
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,12 +102,13 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
+vim.opt.fillchars:append { eob = ' ' }
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
 
--- Don't show the mode, since it's already in the status line
+-- Don't show the mode, since it's already in the status lineNiacinamide
 vim.opt.showmode = false
 
 -- Sync clipboard between OS and Neovim.
@@ -151,13 +152,22 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { silent = true, noremap = true })
+
+-- Bind <leader>q to the new QuitAll command
+vim.api.nvim_set_keymap('n', '<leader>q', ':Quit all<CR>', { noremap = true, silent = true })
+
+vim.api.nvim_set_keymap('n', '<leader>Q', ':qa<CR>', { noremap = true, silent = true })
+
+-- Open Lazy plugin manager
+vim.api.nvim_set_keymap('n', '<leader>l', ':Lazy<CR>', { noremap = true, silent = true })
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -187,7 +197,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper wNiacinamideindow' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -206,13 +216,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
   local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
   if vim.v.shell_error ~= 0 then
     error('Error cloning lazy.nvim:\n' .. out)
   end
-end ---@diagnostic disable-next-line: undefined-field
+end
+---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure and install plugins ]]
@@ -228,6 +239,65 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
+  {
+    'nvim-tree/nvim-tree.lua',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      local function on_attach(bufnr)
+        local api = require 'nvim-tree.api'
+
+        local function opts(desc)
+          return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+        end
+
+        -- Custom mappings
+        vim.keymap.set('n', 'l', api.node.open.edit, opts 'Open')
+        vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts 'Close Folder')
+      end
+
+      require('nvim-tree').setup {
+        view = {
+          width = 30,
+          side = 'left',
+        },
+        git = {
+          enable = true,
+        },
+        on_attach = on_attach, -- Use the new key mapping function
+      }
+
+      -- Auto-open NvimTree on startup if no file is specified
+      vim.api.nvim_create_autocmd('VimEnter', {
+        callback = function()
+          local empty_buffer = vim.fn.argc() == 0
+          if empty_buffer then
+            require('nvim-tree.api').tree.open()
+          end
+        end,
+      })
+    end,
+  },
+
+  {
+    'romgrk/barbar.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' }, -- Required for file icons
+    config = function()
+      require('barbar').setup {
+        -- Enable or disable the tabline (bufferline) for better customization
+        auto_hide = true, -- Hide the tabline when there is only one buffer
+        tabpages = true, -- Show the tab page indicator (optional)
+        icons = {
+          filetype = {
+            enabled = true, -- Enable filetype icons
+            name = function(buf)
+              return buf.name
+            end, -- Buffer name configuration
+          },
+        },
+      }
+    end,
+  },
+
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
   -- NOTE: Plugins can also be added by using a table,
@@ -626,7 +696,8 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
+        zls = {},
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -636,7 +707,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -682,6 +753,13 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+
+            -- Special configuration for clangd
+            if server_name == 'clangd' then
+              server.cmd = { 'clangd', '--header-insertion=never' } -- Prevents unwanted header suggestions
+              server.filetypes = { 'c', 'cpp' } -- Attach to C, C++, and Zig files
+            end
+
             require('lspconfig')[server_name].setup(server)
           end,
         },
@@ -848,21 +926,13 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+  {
+    'slugbyte/lackluster.nvim',
+    lazy = false,
+    priority = 1000,
     init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+      vim.cmd.colorscheme 'lackluster-mint'
+      vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#ffffff' })
     end,
   },
 
@@ -943,7 +1013,7 @@ require('lazy').setup({
   --
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
