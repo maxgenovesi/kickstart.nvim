@@ -159,7 +159,7 @@ vim.opt.scrolloff = 10
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
-vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { silent = true, noremap = true })
+vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>', { silent = true, noremap = true })
 
 -- Bind <leader>q to the new QuitAll command
 vim.api.nvim_set_keymap('n', '<leader>q', ':Quit all<CR>', { noremap = true, silent = true })
@@ -213,6 +213,24 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Automatically open Neo-tree if no file was specified
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = function()
+    -- Check if no file was specified when opening Neovim
+    if vim.fn.argc() == 0 then
+      require('neo-tree').setup {
+        filesystem = {
+          window = {
+            position = 'left',
+            width = 30,
+          },
+        },
+      }
+      vim.cmd 'Neotree show'
+    end
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -239,48 +257,10 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  {
-    'nvim-tree/nvim-tree.lua',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function()
-      local function on_attach(bufnr)
-        local api = require 'nvim-tree.api'
-
-        local function opts(desc)
-          return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
-        end
-
-        -- Custom mappings
-        vim.keymap.set('n', 'l', api.node.open.edit, opts 'Open')
-        vim.keymap.set('n', 'h', api.node.navigate.parent_close, opts 'Close Folder')
-      end
-
-      require('nvim-tree').setup {
-        view = {
-          width = 30,
-          side = 'left',
-        },
-        git = {
-          enable = true,
-        },
-        on_attach = on_attach, -- Use the new key mapping function
-      }
-
-      -- Auto-open NvimTree on startup if no file is specified
-      vim.api.nvim_create_autocmd('VimEnter', {
-        callback = function()
-          local empty_buffer = vim.fn.argc() == 0
-          if empty_buffer then
-            require('nvim-tree.api').tree.open()
-          end
-        end,
-      })
-    end,
-  },
 
   {
     'romgrk/barbar.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' }, -- Required for file icons
+    dependencies = { 'Nvimtree/nvim-web-devicons' }, -- Required for file icons
     config = function()
       require('barbar').setup {
         -- Enable or disable the tabline (bufferline) for better customization
@@ -746,6 +726,8 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+        ensure_installed = {},
+        automatic_installation = true,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -931,7 +913,32 @@ require('lazy').setup({
     lazy = false,
     priority = 1000,
     init = function()
+      local lackluster = require 'lackluster'
+
+      lackluster.setup {
+        disable_plugin = {},
+        tweak_syntax = {
+          string = 'default',
+          string_escape = 'default',
+          comment = 'default',
+          builtin = 'default',
+          type = 'default',
+          keyword = 'default',
+          keyword_return = 'default',
+          keyword_exception = 'default',
+        },
+        tweak_background = {
+          normal = 'default', -- Set transparency
+          telescope = 'default',
+          menu = 'default',
+          popup = 'default',
+        },
+      }
+
+      -- Must set colorscheme after calling setup()
       vim.cmd.colorscheme 'lackluster-mint'
+
+      -- Keep your custom highlight adjustments
       vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#ffffff' })
     end,
   },
@@ -1015,7 +1022,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
